@@ -115,7 +115,7 @@ export const SECTIONS: SectionData[] = [
     id: "ch5",
     type: "letter",
     pinHeightVh: 420,
-    date: "2026.02",
+    date: "2026年3月12日",
     title: "ゆまちゃんへ。",
     body: [
       { text: "いつも、私の夢を聞いてくれてありがとう。どんなに突拍子もない話でも、ちゃんと聞いて、応援してくれること、ずっと嬉しかった。" },

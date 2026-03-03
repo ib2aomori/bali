@@ -3,24 +3,20 @@
 import Story from "@/components/Story";
 import { checkStoryAccess } from "@/lib/session";
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 
 export function StoryPageClient() {
-  const [allowed, setAllowed] = useState(false);
-  const [mounted, setMounted] = useState(false);
+  const router = useRouter();
+  const [allowed, setAllowed] = useState<boolean | null>(null);
 
   useEffect(() => {
-    setMounted(true);
-    setAllowed(checkStoryAccess());
-  }, []);
+    if (checkStoryAccess()) {
+      setAllowed(true);
+    } else {
+      router.replace("/");
+    }
+  }, [router]);
 
-  if (!mounted) return null;
-  if (!allowed) {
-    return (
-      <div className="flex min-h-dvh flex-col items-center justify-center gap-4 bg-[#0a0a0a] px-6 text-center text-white">
-        <p className="text-lg">ストーリーを見るにはパスコードを入力してください。</p>
-        <a href="/" className="text-teal-400 underline">トップへ戻る</a>
-      </div>
-    );
-  }
+  if (!allowed) return null;
   return <Story />;
 }

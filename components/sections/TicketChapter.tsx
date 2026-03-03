@@ -14,7 +14,7 @@ export const TicketChapter = forwardRef<HTMLElement, { data: TicketChapterData }
         className="ticket-section relative flex min-h-[100svh] w-full flex-col overflow-hidden bg-[#0a0a0a]"
         data-section={data.id}
       >
-        {/* 背景レイヤー（画像 + グラデ） */}
+        {/* 背景レイヤー（バリ画像：最初は明るく表示→後に暗いオーバーレイでチケット表示） */}
         <div className="absolute inset-0" aria-hidden>
           <Image
             src="/assets/finale_bg.png"
@@ -26,18 +26,20 @@ export const TicketChapter = forwardRef<HTMLElement, { data: TicketChapterData }
           />
           <div
             className="absolute inset-0 bg-gradient-to-b from-sky-400/85 via-teal-500/75 to-emerald-600/85"
+            data-finale-teal
             style={{ zIndex: bgError ? 1 : -1 }}
           />
         </div>
 
-        {/* チケット表示ゾーン：暗いオーバーレイで背景と分離し、その上にカードを置く */}
+        {/* チケット表示ゾーン：暗いオーバーレイはアニメで後から表示 */}
         <div
           className="ticket-scene relative z-10 flex min-h-0 flex-1 flex-col items-center justify-center px-4 py-6"
           data-ticket-scene
           style={{ perspective: "1600px" }}
         >
           <div
-            className="ticket-stage absolute inset-0 flex items-center justify-center px-4"
+            className="ticket-stage absolute inset-0 flex items-center justify-center px-4 opacity-0"
+            data-ticket-stage
             style={{
               background:
                 "radial-gradient(ellipse 80% 60% at 50% 50%, rgba(0,0,0,0.25) 0%, rgba(0,0,0,0.45) 100%)",
@@ -85,10 +87,7 @@ export const TicketChapter = forwardRef<HTMLElement, { data: TicketChapterData }
                 <p className="text-[9px] font-bold uppercase tracking-wide text-stone-600 md:text-[8px]">
                   Boarding Pass
                 </p>
-                <p
-                  className="text-3xl font-bold tracking-widest text-[#0f766e] md:text-2xl"
-                  style={{ writingMode: "vertical-rl" }}
-                >
+                <p className="text-3xl font-bold tracking-widest text-[#0f766e] md:text-2xl">
                   BALI
                 </p>
                 <div className="grid grid-cols-4 gap-0.5">

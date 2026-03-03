@@ -2,6 +2,8 @@
 
 import { forwardRef } from "react";
 
+const FIN_BG_VIDEO = "/assets/prologue_bg.mp4";
+
 export const FinChapter = forwardRef<HTMLElement>(function FinChapter(_, ref) {
   return (
     <section
@@ -9,13 +11,18 @@ export const FinChapter = forwardRef<HTMLElement>(function FinChapter(_, ref) {
       className="fin-section relative flex min-h-[100svh] w-full items-center justify-center overflow-hidden bg-[#0a0a0a]"
       data-section="fin"
     >
-      {/* 背景の微細なグラデーション（完全な黒ではなく、わずかな深みを） */}
-      <div
-        className="absolute inset-0"
-        style={{
-          background: "radial-gradient(ellipse 80% 60% at 50% 50%, rgba(10, 10, 10, 0.98) 0%, #0a0a0a 100%)",
-        }}
+      {/* 背景動画 */}
+      <video
+        src={FIN_BG_VIDEO}
+        className="absolute inset-0 h-full w-full object-cover"
+        autoPlay
+        muted
+        loop
+        playsInline
+        aria-hidden="true"
       />
+      {/* 暗めのオーバーレイ */}
+      <div className="absolute inset-0 bg-black/50" />
 
       {/* Fin テキスト */}
       <div
@@ -28,14 +35,14 @@ export const FinChapter = forwardRef<HTMLElement>(function FinChapter(_, ref) {
         <div
           className="fin-main text-[clamp(3rem,12vw,8rem)] font-light tracking-[0.15em] text-white"
           style={{
-            textShadow: "0 0 40px rgba(255,255,255,0.1), 0 0 80px rgba(255,255,255,0.05)",
+            textShadow: "0 0 20px rgba(255,255,255,0.8), 0 0 60px rgba(255,255,255,0.4), 0 0 120px rgba(255,255,255,0.2)",
             letterSpacing: "0.2em",
           }}
         >
           Fin
         </div>
         <div
-          className="fin-subtitle mt-8 text-[clamp(0.875rem,2vw,1.125rem)] font-light tracking-[0.3em] text-white/40"
+          className="fin-subtitle mt-8 text-[clamp(0.875rem,2vw,1.125rem)] font-light tracking-[0.3em] text-white/80"
           style={{
             letterSpacing: "0.4em",
           }}

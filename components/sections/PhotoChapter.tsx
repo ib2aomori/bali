@@ -43,21 +43,21 @@ export const PhotoChapter = forwardRef<HTMLElement, { data: PhotoChapterData }>(
         </div>
         <div className="exposure-mask absolute inset-0 opacity-0" data-exposure-mask />
 
-        {/* 手書きテキストオーバーレイ（フォント統一・ボックスなし） */}
+        {/* 手書きテキストオーバーレイ（フォント統一・位置を上に・長いタイトルは1行で収まるサイズ） */}
         {data.handwritingTitle && (
-          <div className="absolute inset-x-0 top-0 z-10 flex flex-col px-7 pt-[13vh]">
+          <div className="absolute inset-x-0 top-0 z-10 flex flex-col px-7 pt-[8vh]">
             <p
-              className="font-subtitle overflow-hidden text-[21px] font-normal leading-[1.55] tracking-wide text-white"
+              className="font-subtitle overflow-hidden text-[clamp(14px,4.2vw,18px)] font-normal leading-[1.55] tracking-wide text-white"
               data-hw-title
               style={{ textShadow: "0 1px 2px rgba(0,0,0,0.35)" }}
             >
               {data.handwritingTitle}
             </p>
-            <div className="mt-4 flex flex-col gap-[9px]">
+            <div className="mt-3 flex flex-col gap-[8px]">
               {data.handwritingLines?.map((line, i) => (
                 <p
                   key={i}
-                  className="font-subtitle overflow-hidden text-[14px] font-normal leading-[1.85] tracking-wide text-white/92"
+                  className="font-subtitle overflow-hidden text-[13px] font-normal leading-[1.85] tracking-wide text-white/92"
                   data-hw-line
                   style={{ textShadow: "0 1px 2px rgba(0,0,0,0.3)" }}
                 >

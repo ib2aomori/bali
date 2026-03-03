@@ -20,7 +20,7 @@ export const GiftBoxChapter = forwardRef<HTMLElement, { data: GiftBoxChapterData
               <div className="ribbon-vertical absolute left-1/2 top-0 h-full w-6 -translate-x-1/2 rounded-full bg-amber-400/90" data-ribbon-v />
               <div className="ribbon-knot absolute left-1/2 top-1/2 h-14 w-14 -translate-x-1/2 -translate-y-1/2 rounded-full bg-amber-300 shadow-xl" data-ribbon-knot />
             </div>
-            <div className="gift-light absolute left-1/2 top-1/2 h-80 w-80 -translate-x-1/2 -translate-y-1/2 rounded-full opacity-0 blur-[50px] bg-amber-200/40" data-gift-light />
+            <div className="gift-light absolute left-1/2 top-1/2 h-[28rem] w-[28rem] -translate-x-1/2 -translate-y-1/2 rounded-full opacity-0 blur-[60px] bg-amber-100/70" data-gift-light />
           </div>
         </div>
         <div className="giftbox-text absolute bottom-[14vh] left-0 right-0 z-10 px-8 font-subtitle opacity-0 text-center text-white/95 tracking-widest" data-giftbox-text>

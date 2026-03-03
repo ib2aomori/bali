@@ -164,7 +164,7 @@ function useScrollTrigger(sectionRefs: React.MutableRefObject<(HTMLElement | nul
           if (ribbonV) tl.to(ribbonV, { scaleY: 0, opacity: 0, duration: 0.15 }, 0.1);
           if (ribbonKnot) tl.to(ribbonKnot, { scale: 0, opacity: 0, duration: 0.15 }, 0.15);
           tl.to(boxLid, { rotationX: -120, transformOrigin: "bottom center", duration: 0.2, ease: "power2.out" }, 0.3);
-          if (light) tl.to(light, { opacity: 0.6, scale: 1.2, duration: 0.15 }, 0.6);
+          if (light) tl.to(light, { opacity: 0.95, scale: 1.5, duration: 0.35, ease: "power2.out" }, 0.55);
           if (text) {
             tl.fromTo(text, { opacity: 0.3, y: 16, filter: "blur(20px)" }, { opacity: 1, y: 0, filter: "blur(0)", duration: 0.8, ease: "power2.out" }, 0.75);
             tl.call(() => {
@@ -177,14 +177,18 @@ function useScrollTrigger(sectionRefs: React.MutableRefObject<(HTMLElement | nul
         if (sectionData.type === "ticket") {
           const cardWrapper = el.querySelector("[data-ticket-card]");
           const finaleSubtitle = el.querySelector("[data-finale-subtitle]");
+          const ticketStage = el.querySelector("[data-ticket-stage]");
           if (!cardWrapper) return;
+
+          if (ticketStage) gsap.set(ticketStage, { opacity: 0 });
 
           ScrollTrigger.create({ trigger: el, start: "top 70%", onEnter: () => { if (!wavesPlayed.current) { wavesPlayed.current = true; playWaves(); } } });
 
           const tl = gsap.timeline({
             scrollTrigger: { trigger: el, start: "top top", end: `+=${pinHeightPx}`, pin: true, pinSpacing: true, scrub: reduced ? false : 1.2 },
           });
-          tl.fromTo(cardWrapper, { rotationX: 15, scale: 0.6, opacity: 0 }, { rotationX: 0, scale: 1, opacity: 1, duration: 0.35, ease: "back.out(1.4)" }, 0.12);
+          if (ticketStage) tl.to(ticketStage, { opacity: 1, duration: 0.5, ease: "power2.inOut" }, 0.2);
+          tl.fromTo(cardWrapper, { rotationX: 15, scale: 0.6, opacity: 0 }, { rotationX: 0, scale: 1, opacity: 1, duration: 0.35, ease: "back.out(1.4)" }, 0.28);
           if (finaleSubtitle) {
             tl.fromTo(finaleSubtitle, { opacity: 0.35, filter: "blur(20px)", y: 10 }, { opacity: 1, filter: "blur(0)", y: 0, duration: 0.9, ease: "power2.out" }, 0.55);
             tl.call(() => {
@@ -231,24 +235,15 @@ export default function Story() {
   const setRef = useCallback((i: number) => (el: HTMLElement | null) => { sectionRefs.current[i] = el; }, []);
   useScrollTrigger(sectionRefs, [SECTIONS.length]);
 
-  // 最初のユーザー操作でBGMを開始（autoplay制限対応）
+  // パスコードページで BGM は既に開始済み。
+  // 直接 /story にアクセスした場合のフォールバック：クリック/タップで開始
   useLayoutEffect(() => {
-    const onInteract = () => {
-      startBgm();
-      window.removeEventListener("click", onInteract);
-      window.removeEventListener("touchstart", onInteract);
-      window.removeEventListener("keydown", onInteract);
-      window.removeEventListener("scroll", onInteract);
-    };
+    const onInteract = () => { startBgm(); };
     window.addEventListener("click", onInteract, { once: true });
-    window.addEventListener("touchstart", onInteract, { once: true });
-    window.addEventListener("keydown", onInteract, { once: true });
-    window.addEventListener("scroll", onInteract, { once: true, passive: true });
+    window.addEventListener("touchend", onInteract, { once: true });
     return () => {
       window.removeEventListener("click", onInteract);
-      window.removeEventListener("touchstart", onInteract);
-      window.removeEventListener("keydown", onInteract);
-      window.removeEventListener("scroll", onInteract);
+      window.removeEventListener("touchend", onInteract);
     };
   }, []);
 

@@ -1,68 +1,79 @@
-let bgmAudio: HTMLAudioElement | null = null;
+let audioCtx: AudioContext | null = null;
+let gainNode: GainNode | null = null;
+let audioBuffer: AudioBuffer | null = null;
+let prefetchPromise: Promise<ArrayBuffer> | null = null;
+let sourceNode: AudioBufferSourceNode | null = null;
 let bgmStarted = false;
+let bgmStarting = false;
 let bgmMuted = false;
 
+// MP3データだけ先にフェッチしておく（AudioContext はまだ作らない）
 export function prepareBgm(): void {
-  if (typeof window === "undefined") return;
-  if (bgmAudio) return;
-  bgmAudio = new Audio("/assets/bgm.mp3");
-  bgmAudio.loop = true;
-  bgmAudio.volume = 0;
-  bgmAudio.preload = "auto";
+  if (typeof window === "undefined" || prefetchPromise) return;
+  prefetchPromise = fetch("/assets/bgm.mp3").then((r) => r.arrayBuffer());
 }
 
-export function startBgm(): void {
-  if (bgmStarted || bgmMuted) return;
-  if (!bgmAudio) prepareBgm();
-  if (!bgmAudio) return;
+export async function startBgm(): Promise<void> {
+  if (bgmStarted || bgmStarting || bgmMuted) return;
+  bgmStarting = true;
 
-  bgmAudio.play().then(() => {
-    bgmStarted = true;
-    fadeBgmIn(bgmAudio!, 0.28, 3000);
-  }).catch(() => {});
+  // ユーザー操作の同期タイミングで AudioContext を生成・resume を発火（awaitより前）
+  if (!audioCtx) {
+    audioCtx = new AudioContext();
+    gainNode = audioCtx.createGain();
+    gainNode.gain.value = 0;
+    gainNode.connect(audioCtx.destination);
+  }
+  const resumePromise = audioCtx.state === "suspended" ? audioCtx.resume() : Promise.resolve();
+
+  // resume と並行してバッファをデコード
+  if (!audioBuffer) {
+    try {
+      const ab = prefetchPromise
+        ? await prefetchPromise
+        : await fetch("/assets/bgm.mp3").then((r) => r.arrayBuffer());
+      audioBuffer = await audioCtx.decodeAudioData(ab);
+    } catch {
+      return;
+    }
+  }
+
+  await resumePromise;
+  if (!audioCtx || !gainNode || !audioBuffer) return;
+
+  sourceNode = audioCtx.createBufferSource();
+  sourceNode.buffer = audioBuffer;
+  sourceNode.loop = true;
+  sourceNode.connect(gainNode);
+  sourceNode.start(0);
+  bgmStarted = true;
+  bgmStarting = false;
+
+  // フェードイン（1.5秒）
+  gainNode.gain.cancelScheduledValues(audioCtx.currentTime);
+  gainNode.gain.setValueAtTime(0, audioCtx.currentTime);
+  gainNode.gain.linearRampToValueAtTime(0.28, audioCtx.currentTime + 1.5);
 }
 
 export function setBgmMuted(muted: boolean): void {
   bgmMuted = muted;
-  if (!bgmAudio) return;
+  if (!gainNode || !audioCtx) return;
+
+  gainNode.gain.cancelScheduledValues(audioCtx.currentTime);
+  gainNode.gain.setValueAtTime(gainNode.gain.value, audioCtx.currentTime);
   if (muted) {
-    fadeBgmOut(bgmAudio, 0, 600);
+    gainNode.gain.linearRampToValueAtTime(0, audioCtx.currentTime + 0.6);
   } else {
     if (!bgmStarted) {
       startBgm();
     } else {
-      fadeBgmIn(bgmAudio, 0.28, 600);
+      gainNode.gain.linearRampToValueAtTime(0.28, audioCtx.currentTime + 0.6);
     }
   }
 }
 
 export function isBgmMuted(): boolean {
   return bgmMuted;
-}
-
-function fadeBgmIn(audio: HTMLAudioElement, targetVol: number, durationMs: number): void {
-  const steps = 30;
-  const interval = durationMs / steps;
-  const delta = targetVol / steps;
-  let step = 0;
-  const timer = setInterval(() => {
-    step++;
-    audio.volume = Math.min(targetVol, audio.volume + delta);
-    if (step >= steps) clearInterval(timer);
-  }, interval);
-}
-
-function fadeBgmOut(audio: HTMLAudioElement, targetVol: number, durationMs: number): void {
-  const steps = 20;
-  const interval = durationMs / steps;
-  const startVol = audio.volume;
-  const delta = (startVol - targetVol) / steps;
-  let step = 0;
-  const timer = setInterval(() => {
-    step++;
-    audio.volume = Math.max(targetVol, audio.volume - delta);
-    if (step >= steps) clearInterval(timer);
-  }, interval);
 }
 
 export function prepareAudio(): void {
