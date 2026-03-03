@@ -150,26 +150,26 @@ function useScrollTrigger(sectionRefs: React.MutableRefObject<(HTMLElement | nul
 
         if (sectionData.type === "giftbox") {
           const boxLid = el.querySelector("[data-box-lid]");
-          const ribbonH = el.querySelector("[data-ribbon-h]");
-          const ribbonV = el.querySelector("[data-ribbon-v]");
-          const ribbonKnot = el.querySelector("[data-ribbon-knot]");
           const light = el.querySelector("[data-gift-light]");
           const text = el.querySelector("[data-giftbox-text]");
+          const innerText = el.querySelector("[data-passport-inner-text]");
           if (!boxLid) return;
+
+          if (innerText) gsap.set(innerText, { clipPath: "inset(0 100% 0 0)" });
 
           const tl = gsap.timeline({
             scrollTrigger: { trigger: el, start: "top top", end: `+=${pinHeightPx}`, pin: true, pinSpacing: true, scrub: reduced ? false : 1.2 },
           });
-          if (ribbonH) tl.to(ribbonH, { scaleX: 0, opacity: 0, duration: 0.15 }, 0.1);
-          if (ribbonV) tl.to(ribbonV, { scaleY: 0, opacity: 0, duration: 0.15 }, 0.1);
-          if (ribbonKnot) tl.to(ribbonKnot, { scale: 0, opacity: 0, duration: 0.15 }, 0.15);
-          tl.to(boxLid, { rotationX: -120, transformOrigin: "bottom center", duration: 0.2, ease: "power2.out" }, 0.3);
-          if (light) tl.to(light, { opacity: 0.95, scale: 1.5, duration: 0.35, ease: "power2.out" }, 0.55);
+          // 横開き（背表紙＝左辺を軸に、本のように横に開く）
+          tl.to(boxLid, { rotationY: -90, transformOrigin: "left center", transformPerspective: 800, duration: 0.4, ease: "power2.inOut" }, 0.2);
+          if (light) tl.to(light, { opacity: 0.85, scale: 1.4, duration: 0.35, ease: "power2.out" }, 0.55);
+          // カバーが開いた後に "Next trip" を手書き風に表示
+          if (innerText) tl.to(innerText, { clipPath: "inset(0 0% 0 0)", duration: 0.45, ease: "none" }, 0.65);
           if (text) {
-            tl.fromTo(text, { opacity: 0.3, y: 16, filter: "blur(20px)" }, { opacity: 1, y: 0, filter: "blur(0)", duration: 0.8, ease: "power2.out" }, 0.75);
+            tl.fromTo(text, { opacity: 0, y: 12, filter: "blur(12px)" }, { opacity: 1, y: 0, filter: "blur(0)", duration: 0.6, ease: "power2.out" }, 0.85);
             tl.call(() => {
               if (!reduced) lockScroll(1300);
-            }, [], 0.75 + 0.8);
+            }, [], 0.85 + 0.6);
           }
           return;
         }
@@ -238,9 +238,11 @@ export default function Story() {
   // パスコードページで BGM は既に開始済み。
   // 直接 /story にアクセスした場合のフォールバック：クリック/タップで開始
   useLayoutEffect(() => {
-    const onInteract = () => { startBgm(); };
-    window.addEventListener("click", onInteract, { once: true });
-    window.addEventListener("touchend", onInteract, { once: true });
+    const onInteract = () => {
+      startBgm();
+    };
+    window.addEventListener("click", onInteract);
+    window.addEventListener("touchend", onInteract);
     return () => {
       window.removeEventListener("click", onInteract);
       window.removeEventListener("touchend", onInteract);

@@ -103,12 +103,18 @@ export const SECTIONS: SectionData[] = [
     ],
   },
   {
-    id: "ch4", type: "photo", pinHeightVh: 260,
+    id: "ch4", type: "photo", pinHeightVh: 400,
     baseImage: `${ASSET_BASE}/ch4_base.png?v=1`, writeImage: `${ASSET_BASE}/ch4_write.png?v=1`, subtitle: SUBTITLES.ch4,
     handwritingTitle: "どこへでも、一緒に行きたい。",
     handwritingLines: [
       "できるなら、まだ見たことの景色を一緒に見たい。",
       "まだ知らない経験や思い出を作りたい。",
+      "出来るならば、焼き直しじゃない思い出がいい。",
+      "あなただけとの思い出が欲しい。",
+      "",
+      "",
+      "ヨーロッパやアメリカ、南米やトルコ？",
+      "どこがいいかな。",
     ],
   },
   {

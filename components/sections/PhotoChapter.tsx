@@ -54,16 +54,20 @@ export const PhotoChapter = forwardRef<HTMLElement, { data: PhotoChapterData }>(
               {data.handwritingTitle}
             </p>
             <div className="mt-3 flex flex-col gap-[8px]">
-              {data.handwritingLines?.map((line, i) => (
-                <p
-                  key={i}
-                  className="font-subtitle overflow-hidden text-[13px] font-normal leading-[1.85] tracking-wide text-white/92"
-                  data-hw-line
-                  style={{ textShadow: "0 1px 2px rgba(0,0,0,0.3)" }}
-                >
-                  {line}
-                </p>
-              ))}
+              {data.handwritingLines?.map((line, i) =>
+                line === "" ? (
+                  <p key={i} className="font-subtitle text-[13px] leading-[1.85]" aria-hidden />
+                ) : (
+                  <p
+                    key={i}
+                    className="font-subtitle overflow-hidden text-[13px] font-normal leading-[1.85] tracking-wide text-white/92"
+                    data-hw-line
+                    style={{ textShadow: "0 1px 2px rgba(0,0,0,0.3)" }}
+                  >
+                    {line}
+                  </p>
+                )
+              )}
             </div>
           </div>
         )}

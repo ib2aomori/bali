@@ -7,6 +7,15 @@ let bgmStarted = false;
 let bgmStarting = false;
 let bgmMuted = false;
 
+// タブが非アクティブになると AudioContext が suspend される → 復帰時に resume する
+if (typeof document !== "undefined") {
+  document.addEventListener("visibilitychange", () => {
+    if (!document.hidden && audioCtx && audioCtx.state === "suspended" && bgmStarted && !bgmMuted) {
+      audioCtx.resume();
+    }
+  });
+}
+
 // MP3データだけ先にフェッチしておく（AudioContext はまだ作らない）
 export function prepareBgm(): void {
   if (typeof window === "undefined" || prefetchPromise) return;
@@ -34,12 +43,13 @@ export async function startBgm(): Promise<void> {
         : await fetch("/assets/bgm.mp3").then((r) => r.arrayBuffer());
       audioBuffer = await audioCtx.decodeAudioData(ab);
     } catch {
+      bgmStarting = false;
       return;
     }
   }
 
   await resumePromise;
-  if (!audioCtx || !gainNode || !audioBuffer) return;
+  if (!audioCtx || !gainNode || !audioBuffer) { bgmStarting = false; return; }
 
   sourceNode = audioCtx.createBufferSource();
   sourceNode.buffer = audioBuffer;
@@ -48,6 +58,13 @@ export async function startBgm(): Promise<void> {
   sourceNode.start(0);
   bgmStarted = true;
   bgmStarting = false;
+
+  // AudioContext が suspend された場合（タブ切り替えなど）に自動 resume
+  audioCtx.onstatechange = () => {
+    if (audioCtx && audioCtx.state === "suspended" && bgmStarted && !bgmMuted) {
+      audioCtx.resume();
+    }
+  };
 
   // フェードイン（1.5秒）
   gainNode.gain.cancelScheduledValues(audioCtx.currentTime);
